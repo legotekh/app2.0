@@ -1,38 +1,36 @@
 package com.example.myapp.data
 
-class AppRepository {
+import kotlinx.coroutines.flow.Flow
 
-    private fun getRawCategories(): List<CategoryModel> {
-        return listOf(
-            CategoryModel(1, "Всі"),
-            CategoryModel(2, "Парки"),
-            CategoryModel(3, "Кафе"),
-            CategoryModel(4, "Музеї"),
-            CategoryModel(5, "Готелі")
-        )
+class AppRepository(private val appDao: AppDao) {
+
+    val allCategories: Flow<List<CategoryEntity>> = appDao.getAllCategories()
+    val allPlaces: Flow<List<PlaceModel>> = appDao.getAllPlacesWithCategories()
+
+    suspend fun insertCategory(name: String) {
+        appDao.insertCategory(CategoryEntity(name = name))
     }
 
-    private fun getRawPlaces(): List<PlaceModel> {
-        return List(20) { index ->
-            PlaceModel(
-                id = index,
-                title = "Локація №${index + 1}",
-                description = "Опис чудової локації під номером ${index + 1}"
-            )
-        }
+    suspend fun updateCategory(id: Int, name: String) {
+        appDao.updateCategory(CategoryEntity(id = id, name = name))
     }
 
-    fun getScreenContent(): List<ListItem> = buildList {
+    suspend fun deleteCategory(id: Int, name: String) {
+        appDao.deleteCategory(CategoryEntity(id = id, name = name))
+    }
 
-        add(ListItem.HeaderItem("Категорії"))
+    suspend fun insertPlace(title: String, description: String, categoryId: Int) {
+        appDao.insertPlace(PlaceEntity(title = title, description = description, categoryId = categoryId))
+    }
 
-        add(ListItem.HorizontalCarouselItem(getRawCategories()))
+    suspend fun updatePlace(id: Int, title: String, description: String, categoryId: Int) {
+        appDao.updatePlace(PlaceEntity(id = id, title = title, description = description, categoryId = categoryId))
+    }
 
-        add(ListItem.HeaderItem("Популярні місця"))
+    suspend fun deletePlace(id: Int) {
+    }
 
-        val places = getRawPlaces()
-        places.forEach { place ->
-            add(ListItem.PlaceItem(place))
-        }
+    suspend fun deletePlace(place: PlaceEntity) {
+        appDao.deletePlace(place)
     }
 }
